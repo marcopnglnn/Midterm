@@ -132,6 +132,8 @@ export default function CustomizedTables() {
     navigateRoute(id)
 
   }
+
+
   useEffect(() => {
     setRowData(() => {
       return state.students.map(e => createData(e.id, e.name, e.course, e.Reviews.length, computeRatings(e.Reviews), e.image))
