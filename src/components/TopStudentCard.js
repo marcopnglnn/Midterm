@@ -2,7 +2,6 @@ import * as React from "react";
 import { Box, Card, CardContent, CardMedia, Typography } from "@mui/material";
 import StarIcon from "@mui/icons-material/Star";
 
-import img from "../assets/img/avatar.jpg";
 const classes = {
   card: {
     display: "flex",
@@ -53,7 +52,7 @@ const classes = {
 export default function MediaControlCard() {
   return (
     <Card sx={classes.card}>
-      <CardMedia component="img" sx={classes.img} src={img} alt="image" />
+      <CardMedia component="img" sx={classes.img} src='/img/avatar.jpg' alt="image" />
 
       <Box sx={classes.imgbox}>
         <CardContent sx={classes.imgcont}>

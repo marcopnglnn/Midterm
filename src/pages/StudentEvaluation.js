@@ -1,13 +1,15 @@
-import * as React from "react";
+import React, { useEffect, useState } from "react";
 import { Box, Typography } from "@mui/material";
-import StarIcon from "@mui/icons-material/Star";
+import { useSelector } from 'react-redux'
 
 import StudentProfile from "../components/StudentProfile";
 import FilterArea from "../components/FilterArea";
 import CommentCard from "../components/CommentCard";
-import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import RateCard from "../components/RateCrad";
+import { useParams } from 'react-router-dom'
+import StarRating from "components/StarRating";
+import { useNavigate } from "react-router-dom";
 
 const classes = {
   box1: {
@@ -35,7 +37,10 @@ const classes = {
   box4: {
     display: "grid",
     gap: 0.1,
+    alignItems: "center",
     gridTemplateColumns: "repeat(5, 1fr)",
+    justifyContent: "center",
+
     cursor: "pointer",
   },
   staricon: {
@@ -64,30 +69,32 @@ const classes = {
 };
 
 export default function SearchAppBar() {
+  const [average, setAverage] = useState(0)
+  const navigate = useNavigate()
+  const student = useSelector(state => state.app.student)
+  useEffect(() => {
+    if (!student) {
+      navigate('/')
+    }
+  }, [])
+
   return (
     <Box sx={classes.box1}>
-      <Navbar />
-
       <br />
       <br />
       <br />
 
       <Box style={classes.box2}>
         <Box>
-          <StudentProfile />
+          <StudentProfile student={student} />
         </Box>
-
         <Box style={classes.box3}>
           <Typography style={classes.addrating}>Add your Rating</Typography>
-          <Box sx={classes.box4}>
-            <StarIcon style={classes.staricon} />
-            <StarIcon style={classes.staricon} />
-            <StarIcon style={classes.staricon} />
-            <StarIcon style={classes.staricon} />
-            <StarIcon style={classes.staricon} />
-          </Box>
+          <center>
+            <StarRating size="large" value={average} readOnly />
+          </center>
 
-          <RateCard />
+          <RateCard getAverate={setAverage} />
         </Box>
 
         <Box style={classes.filterareabox}>

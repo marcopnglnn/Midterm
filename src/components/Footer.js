@@ -80,7 +80,7 @@ export default function Footer() {
     <Box style={classes.box1}>
       <Box style={classes.box2}>
         <TwitterIcon style={classes.twittericon} />
-        <span class="material-icons blue-color" style={classes.discord}>
+        <span className="material-icons blue-color" style={classes.discord}>
           {" "}
           discord
         </span>

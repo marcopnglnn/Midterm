@@ -11,20 +11,37 @@ import {
   Table,
 } from "@mui/material";
 import StarIcon from "@mui/icons-material/Star";
-
-import img from "../assets/img/marco9.jpg";
-
-function createData(name, calories, fat, carbs, protein) {
-  return { name, calories, fat, carbs, protein };
+import StarRating from "./StarRating";
+import { useNavigate } from 'react-router-dom'
+import { useSelector } from "react-redux";
+import { useEffect } from "react";
+// 
+function createData(key, value, category, rating) {
+  return { key, value, category, rating };
 }
 
 const rows = [
-  createData("Gender: ", "Male", "Teamwork:", 2.0),
-  createData("Birthday:", "05-10-2000", "Creativity:", 2.0),
-  createData("Address:", "Tanawan Bustos Bulacan", "Adaptability:", 1.0),
-  createData("Nickname:", "tabs", "Leadership:", 2.0),
-  createData("Skills / Language:", "English/Filipino", "Persuasion:", 2.0),
+  createData("Gender: ", "Male", "Teamwork:", 'teamwork'),
+  createData("Birthday:", "05-10-2000", "Creativity:", 'creativity'),
+  createData("Address:", "Tanawan Bustos Bulacan", "Adaptability:", 'adaptability'),
+  createData("Nickname:", "tabs", "Leadership:", 'leadership'),
+  createData("Skills / Language:", "English/Filipino", "Persuasion:", 'persuasion'),
 ];
+
+const getRatingByCategory = (category, Reviews) => {
+  if (!Reviews) {
+    return 0
+  }
+  const reviews = Reviews.filter(e => {
+    return e.category.toLowerCase() == category.toLowerCase()
+  })
+  if (!reviews.length) return 0
+  let sum = 0;
+  reviews.forEach(r => {
+    sum += r.review
+  })
+  return sum / reviews.length
+}
 
 const classes = {
   box1: {
@@ -142,8 +159,23 @@ const classes = {
     color: "#26CE8D",
   },
 };
+const computeRatings = (reviews) => {
+  if (!reviews || reviews.length == 0) {
+    return 0
+  }
+  let sum = 0
+
+  reviews.forEach(review => {
+    sum += review.review
+  })
+
+  return (sum / reviews.length).toFixed(1)
+}
+
 
 export default function BasicGrid() {
+  const student = useSelector(state => state.app.student)
+
   return (
     <Box sx={{ flexGrow: 1 }} style={classes.box1}>
       <Grid container spacing={2}>
@@ -152,21 +184,17 @@ export default function BasicGrid() {
             <CardMedia
               style={classes.cardmedia}
               component="img"
-              src={img}
+              src={student?.image}
               alt="Live from space album cover"
             />
             <Box sx={classes.box3}>
               <Box sx={classes.box4}>
-                <StarIcon style={classes.staricon} />
-                <StarIcon style={classes.staricon} />
-                <StarIcon style={classes.staricon} />
-                <StarIcon style={classes.staricon} />
-                <StarIcon style={classes.staricon} />
+                <StarRating readOnly value={computeRatings(student?.Reviews)} />
               </Box>
             </Box>
             <Typography style={classes.name} component="div">
-              <span style={classes.rating}>3.0</span> Overall Rating{" "}
-              <span style={classes.h6}>2000</span> Reviews
+              <span style={classes.rating}>{computeRatings(student?.Reviews)}</span> Overall Rating{" "}
+              <span style={classes.h6}>{student?.Reviews.length / 5}</span> Reviews
             </Typography>
           </Box>
         </Grid>
@@ -174,7 +202,7 @@ export default function BasicGrid() {
         <Grid item xs={7}>
           <Box style={classes.box5}>
             <Typography style={classes.header} component="div">
-              <span style={classes.topstudname}>Christian Pile</span> BSIT 4B
+              <span style={classes.topstudname}>{student?.name}</span> {student?.course}
             </Typography>
 
             <TableContainer>
@@ -187,16 +215,16 @@ export default function BasicGrid() {
                         component="th"
                         scope="row"
                       >
-                        {row.name}
+                        {row.key}
                       </TableCell>
                       <TableCell align="right" style={classes.tablecell2}>
-                        {row.calories}
+                        {row.value}
                       </TableCell>
                       <TableCell align="right" style={classes.tablecell3}>
-                        {row.fat}
+                        {row.category}
                       </TableCell>
                       <TableCell align="right" style={classes.tablecell4}>
-                        <Box style={classes.box6}>{row.carbs}</Box>
+                        <Box style={classes.box6}>  {getRatingByCategory(row.rating, student?.Reviews).toFixed(1)}</Box>
                       </TableCell>
                     </TableRow>
                   ))}

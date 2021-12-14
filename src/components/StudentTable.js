@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, { useEffect, useState } from "react";
 import {
   styled,
   Table,
@@ -9,12 +9,18 @@ import {
   CardMedia,
   Typography,
   Box,
+  Rating,
 } from "@mui/material";
 import TableCell, { tableCellClasses } from "@mui/material/TableCell";
 import StarIcon from "@mui/icons-material/Star";
 
-import img from "../assets/img/marco9.jpg";
+import { useSelector } from "react-redux";
 
+import { useNavigate } from "react-router-dom";
+import StarRating from "./StarRating";
+import { useDispatch } from "react-redux";
+import actionCreator from "util/redux/actions/actionCreator";
+import * as actionTypes from 'util/redux/types'
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
     backgroundColor: "#131414",
@@ -34,6 +40,17 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
   borderRadius: 15,
   marginTop: 100,
 }));
+
+
+const StyledRating = styled(Rating)({
+  '& .MuiRating-iconFilled': {
+    color: '#26CE8D',
+  },
+  '& .MuiRating-iconHover': {
+    color: '#26CE8D',
+  },
+});
+
 
 const classes = {
   tablecontainer: {
@@ -76,21 +93,54 @@ const classes = {
     width: 20,
     height: 20,
   },
+  stariconDisabled: {
+    color: "#5b635e",
+    width: 20,
+    height: 20,
+  },
 };
 
-function createData(name, yrSection, reviews, rating) {
-  return { name, yrSection, reviews, rating };
+function createData(id, name, yrSection, reviews, rating, image) {
+  return { id, name, yrSection, reviews, rating, image };
 }
 
-const rows = [
-  createData("Christian Pile", "BSIT 4B", 85, 24),
-  createData("Marco Pangilinan", "BSIT 4B", 90, 24),
-  createData("Joshua Esternon", "BSIT 4B", 85, 24),
-  createData("Kenneth Deleon", "BSIT 4B", 80, 24),
-  createData("Justin Rose Cruz", "BSIT 4B", 88, 24),
-];
+
+const computeRatings = (reviews) => {
+  if (reviews.length == 0) {
+    return 0
+  }
+  let sum = 0
+
+  reviews.forEach(review => {
+    sum += review.review
+  })
+
+  return sum / reviews.length
+}
+
 
 export default function CustomizedTables() {
+  const state = useSelector(state => state.app)
+  const [rowData, setRowData] = useState([])
+  const dispatch = useDispatch()
+  let navigate = useNavigate();
+  const navigateRoute = (id) => {
+    navigate(`/studeval`)
+  }
+  const setStudent = (id) => {
+    dispatch(actionCreator(actionTypes.SELECT_STUDENT, state.students.find(e => e.id.toString() == id.toString())))
+    navigateRoute(id)
+
+  }
+  useEffect(() => {
+    setRowData(() => {
+      return state.students.map(e => createData(e.id, e.name, e.course, e.Reviews.length, computeRatings(e.Reviews), e.image))
+    })
+    return () => {
+
+    }
+  }, [state.students])
+
   return (
     <TableContainer style={classes.tablecontainer}>
       <Table
@@ -112,16 +162,15 @@ export default function CustomizedTables() {
           </TableRow>
         </TableHead>
         <TableBody style={classes.tablebody}>
-          {rows.map((row) => (
-            <StyledTableRow key={row.name} style={classes.styletablebody}>
+          {rowData.map((row) => (
+            <StyledTableRow key={row.name} onClick={() => setStudent(row.id)} style={classes.styletablebody}>
               <StyledTableCell align="left" style={classes.styletablecell}>
                 <Box style={classes.box}>
-                  <Typography style={{ width: 25, fontSize: 12 }}>1</Typography>
                   <Box style={{ width: 45 }}>
                     <CardMedia
                       component="img"
                       sx={{ width: 35, height: 35 }}
-                      src={img}
+                      src={row.image}
                     />
                   </Box>
                   <Typography style={{ fontSize: 14 }}>{row.name}</Typography>
@@ -131,15 +180,11 @@ export default function CustomizedTables() {
                 {row.yrSection}
               </StyledTableCell>
               <StyledTableCell align="center" style={classes.styletablecell2}>
-                {row.reviews}
+                {row.reviews / 5}
               </StyledTableCell>
               <StyledTableCell align="center" style={classes.styletablecell2}>
                 <Box sx={classes.box2}>
-                  <StarIcon style={classes.staricon} />
-                  <StarIcon style={classes.staricon} />
-                  <StarIcon style={classes.staricon} />
-                  <StarIcon style={classes.staricon} />
-                  <StarIcon style={classes.staricon} />
+                  <StarRating readOnly value={row.rating} />
                 </Box>
               </StyledTableCell>
             </StyledTableRow>

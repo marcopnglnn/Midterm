@@ -1,14 +1,13 @@
+import { ThemeProvider, createTheme } from "@mui/material";
+
+import theme from "./util/theme";
 import React from "react";
-
-import { Provider } from "react-redux";
-import store from "./redux/store";
-
 import Router from "./router";
-
 export default function App() {
+  const THEME = createTheme(theme(false));
   return (
-    <Provider store={store}>
+    <ThemeProvider theme={THEME}>
       <Router />
-    </Provider>
+    </ThemeProvider>
   );
 }

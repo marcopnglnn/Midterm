@@ -6,8 +6,9 @@ import ReportGmailerrorredIcon from "@mui/icons-material/ReportGmailerrorred";
 import ReplyIcon from "@mui/icons-material/Reply";
 import { TextField } from "@material-ui/core";
 import { withStyles } from "@material-ui/core/styles";
+import { useSelector } from "react-redux";
+import { useState } from "react";
 
-import img from "../assets/img/avatar.jpg";
 
 const StyledTextField = withStyles((theme) => ({
   root: {
@@ -179,7 +180,7 @@ const classes = {
     display: "flex",
     width: "100%",
     flexDirection: "column",
-    height: 30,
+    maxHeight: 30,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -233,128 +234,164 @@ const classes = {
 };
 
 export default function CommentCard() {
+  const state = useSelector(state => state.app)
+  const [comments, setComments] = useState(state.student.Comments);
+  const getTimeInterval = (date) => {
+    let seconds = Math.floor((Date.now() - date) / 1000);
+    let unit = "second";
+    let direction = "ago";
+    if (seconds < 0) {
+      seconds = -seconds;
+      direction = "from now";
+    }
+    let value = seconds;
+    if (seconds >= 31536000) {
+      value = Math.floor(seconds / 31536000);
+      unit = "year";
+    } else if (seconds >= 86400) {
+      value = Math.floor(seconds / 86400);
+      unit = "day";
+    } else if (seconds >= 3600) {
+      value = Math.floor(seconds / 3600);
+      unit = "hour";
+    } else if (seconds >= 60) {
+      value = Math.floor(seconds / 60);
+      unit = "minute";
+    }
+    if (value != 1)
+      unit = unit + "s";
+    return value + " " + unit + " " + direction;
+  }
   return (
-    <Box style={classes.box1}>
-      <Grid container style={classes.gridcontainer}>
-        <Grid item xs={4} style={{}}>
-          <Box style={classes.box2}>
-            <CardMedia
-              style={classes.cardmedia}
-              component="img"
-              src={img}
-              alt="marco"
-            />
-          </Box>
-        </Grid>
-        <Grid item xs={8} style={{}}>
-          <Typography style={classes.gmail}>
-            christianjames.c.pile@bulsu.edu.ph
-          </Typography>
-          <Typography style={classes.date}>Posted 1hours ago</Typography>
-        </Grid>
-      </Grid>
+    <>
+      {!state.student.Comments.length ? <Typography style={{ textAlign: 'center', color: 'white' }}>
+        No comments
+      </Typography> :
+        <>
+          {comments.map(comment => {
+            return <Box style={classes.box1}>
+              <Grid container style={classes.gridcontainer}>
+                <Grid item xs={4} style={{}}>
+                  <Box style={classes.box2}>
+                    <CardMedia
+                      style={classes.cardmedia}
+                      component="img"
+                      src={comment.Reviewer.image}
+                      alt="marco"
+                    />
+                  </Box>
+                </Grid>
+                <Grid item xs={8} style={{}}>
+                  <Typography style={classes.gmail}>
+                    {comment.Reviewer.email}
+                  </Typography>
+                  <Typography style={classes.date}>Posted {getTimeInterval(new Date(comment.createdAt))}</Typography>
+                </Grid>
+              </Grid>
 
-      <Box style={classes.box3}>
-        <Box sx={classes.box4}>
-          <StarIcon style={classes.staricon} />
-          <StarIcon style={classes.staricon} />
-          <StarIcon style={classes.staricon} />
-          <StarIcon style={classes.staricon} />
-          <StarIcon style={classes.staricon} />
-        </Box>
+              <Box style={classes.box3}>
+                <Box sx={classes.box4}>
+                  <StarIcon style={classes.staricon} />
+                  <StarIcon style={classes.staricon} />
+                  <StarIcon style={classes.staricon} />
+                  <StarIcon style={classes.staricon} />
+                  <StarIcon style={classes.staricon} />
+                </Box>
 
-        <Typography style={classes.lorem1}>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-          eiusmod tempor incididunt ut labore et dolore magna aliqua. Ultricies
-          integer quis auctor elit sed vulputate. Ac turpis egestas sed tempus
-          urna et pharetra pharetra.
-        </Typography>
+                <Typography style={classes.lorem1}>
+                  {comment.comment}
+                </Typography>
 
-        <Box style={classes.box5}>
-          <Grid container spacing={2}>
-            <Grid item xs={8} style={classes.grid1}>
-              <ChatBubbleOutlineIcon style={classes.chatbub} />
-              <Typography style={classes.comment}>10 Comments</Typography>
-            </Grid>
-            <Grid item xs={4} style={classes.grid2}>
-              <ReportGmailerrorredIcon style={classes.reportgmail} />
-              <Typography style={classes.report}>Report</Typography>
-            </Grid>
-          </Grid>
-        </Box>
+                <Box style={classes.box5}>
+                  <Grid container spacing={2}>
+                    <Grid item xs={8} style={classes.grid1}>
+                      {/* <ChatBubbleOutlineIcon style={classes.chatbub} />
+                      <Typography style={classes.comment}>10 Comments</Typography> */}
+                    </Grid>
+                    <Grid item xs={4} style={classes.grid2}>
+                      <ReportGmailerrorredIcon style={classes.reportgmail} />
+                      <Typography style={classes.report}>Report</Typography>
+                    </Grid>
+                  </Grid>
+                </Box>
 
-        <Box style={classes.box6}>
-          <Grid container style={classes.gridcont2}>
-            <Grid item xs={2} style={{}}>
-              <Box style={classes.box7}>
-                <ReplyIcon style={classes.replyicon1} />
-              </Box>
-            </Grid>
-            <Grid item xs={9} style={{}}>
-              <Box style={classes.box8}>
-                <Typography style={classes.comment}>
-                  Add your comment
+                {/* <Box style={classes.box6}>
+              <Grid container style={classes.gridcont2}>
+                <Grid item xs={2} style={{}}>
+                  <Box style={classes.box7}>
+                    <ReplyIcon style={classes.replyicon1} />
+                  </Box>
+                </Grid>
+                <Grid item xs={9} style={{}}>
+                  <Box style={classes.box8}>
+                    <Typography style={classes.comment}>
+                      Add your comment
+                    </Typography>
+                  </Box>
+                </Grid>
+              </Grid>
+
+              <Grid container style={classes.grid3}>
+                <Grid item xs={8} style={{}}>
+                  <Box style={classes.box9}>
+                    <StyledTextField
+                      variant="standard"
+                      placeholder="Write your comment..."
+                      multiline
+                      rows={2}
+                      rowsMax={10}
+                      style={classes.styletext}
+                    />
+                  </Box>
+                </Grid>
+                <Grid item xs={4} style={{ marginTop: 3 }}>
+                  <Box style={classes.box10}>
+                    <Button variant="contained" style={classes.btnsubmit}>
+                      Submit
+                    </Button>
+                  </Box>
+                </Grid>
+              </Grid>
+            </Box>
+
+            <Box style={classes.box12}>
+              <Grid container style={{ width: 320 }}>
+                <Grid item xs={2} style={{}}>
+                  <Box style={classes.box11}>
+                    <ReplyIcon style={classes.replyicon} />
+                  </Box>
+                </Grid>
+                <Grid item xs={9} style={{}}>
+                  <Box style={classes.box13}>
+                    <Typography style={classes.gmaill}>
+                      jesternon@gmail.com{" "}
+                      <span style={{ marginLeft: 10 }}>3 hours ago</span>
+                    </Typography>
+                  </Box>
+                </Grid>
+              </Grid>
+
+              <Box style={classes.box14}>
+                <Typography style={classes.loremtypo}>
+                  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+                  eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                  Ultricies integer quis auctor elit sed vulputate. Ac turpis
+                  egestas sed tempus urna et pharetra pharetra.
                 </Typography>
               </Box>
-            </Grid>
-          </Grid>
+            </Box>
 
-          <Grid container style={classes.grid3}>
-            <Grid item xs={8} style={{}}>
-              <Box style={classes.box9}>
-                <StyledTextField
-                  variant="standard"
-                  placeholder="Write your comment..."
-                  multiline
-                  rows={2}
-                  rowsMax={10}
-                  style={classes.styletext}
-                />
+            <Box style={classes.box15}>
+              <Typography style={classes.loadmore}>
+                Load more comments ...
+              </Typography>
+            </Box> */}
               </Box>
-            </Grid>
-            <Grid item xs={4} style={{ marginTop: 3 }}>
-              <Box style={classes.box10}>
-                <Button variant="contained" style={classes.btnsubmit}>
-                  Submit
-                </Button>
-              </Box>
-            </Grid>
-          </Grid>
-        </Box>
+            </Box>
+          })}
 
-        <Box style={classes.box12}>
-          <Grid container style={{ width: 320 }}>
-            <Grid item xs={2} style={{}}>
-              <Box style={classes.box11}>
-                <ReplyIcon style={classes.replyicon} />
-              </Box>
-            </Grid>
-            <Grid item xs={9} style={{}}>
-              <Box style={classes.box13}>
-                <Typography style={classes.gmaill}>
-                  jesternon@gmail.com{" "}
-                  <span style={{ marginLeft: 10 }}>3 hours ago</span>
-                </Typography>
-              </Box>
-            </Grid>
-          </Grid>
-
-          <Box style={classes.box14}>
-            <Typography style={classes.loremtypo}>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-              eiusmod tempor incididunt ut labore et dolore magna aliqua.
-              Ultricies integer quis auctor elit sed vulputate. Ac turpis
-              egestas sed tempus urna et pharetra pharetra.
-            </Typography>
-          </Box>
-        </Box>
-
-        <Box style={classes.box15}>
-          <Typography style={classes.loadmore}>
-            Load more comments ...
-          </Typography>
-        </Box>
-      </Box>
-    </Box>
+        </>
+      }
+    </>
   );
 }

@@ -1,18 +1,18 @@
 import * as React from "react";
-import { Box, Typography, Grid } from "@mui/material";
-import FacebookIcon from "@mui/icons-material/Facebook";
-import TwitterIcon from "@mui/icons-material/Twitter";
-import GoogleIcon from "@mui/icons-material/Google";
+import { Box, Typography } from "@mui/material";
 
-import TopStudentCard from "../components/TopStudentCard";
-import MarcoTop from "../subpages/marcotop";
-import JoshuaTop from "../subpages/JoshuTop";
-import JustinTop from "../subpages/justinTop";
+
 import FilterArea from "../components/FilterArea";
 import StudentTable from "../components/StudentTable";
 import StudentTablePagination from "../components/StudentTablePagination";
-import Navbar from "../components/Navbar";
+import TopStudentCard from "subpages/StudentTop";
 import Footer from "../components/Footer";
+
+import { useDispatch, useSelector } from "react-redux";
+import api from "util/api";
+import actionCreator from "util/redux/actions/actionCreator";
+import * as actionTypes from 'util/redux/types'
+
 
 const classes = {
   studlist: {
@@ -98,46 +98,72 @@ const classes = {
     borderTop: "1px solid #515456",
   },
 };
+const studentTop = [
+  {
+    name: "Ryan",
+    reviews: 100,
+    image: '/img/avatar',
+  },
+  {
+    name: "Marco",
+    reviews: 30,
+    image: '/img/avatar'
+  },
+  {
+    name: "Justine",
+    reviews: 30,
+    image: '/img/avatar'
+  },
+  {
+    name: "Juan",
+    reviews: 30,
+    image: '/img/avatar'
+  },
+]
+const computeRatings = (reviews) => {
+  if (!reviews || reviews.length == 0) {
+    return 0
+  }
+  let sum = 0
+
+  reviews.forEach(review => {
+    sum += review.review
+  })
+
+  return (sum / reviews.length).toFixed(1)
+}
 
 export default function SearchAppBar() {
+  const dispatch = useDispatch()
+  const state = useSelector(state => state.app)
+  const [topStudents, setTopStudents] = React.useState([])
+  React.useEffect(async () => {
+    try {
+      let res = await api.get('/students')
+      dispatch(actionCreator(actionTypes.FETCH_STUDENTS, res.sort((a, b) => b.Reviews.length - a.Reviews.length)))
+      let onTop = res.filter(e => e.Reviews.length > 0).sort((a, b) => computeRatings(b.Reviews) - computeRatings(a.Reviews))
+      setTopStudents(onTop);
+    } catch (error) {
+      alert(error.message)
+    }
+  }, [])
   return (
     <Box sx={classes.studlist}>
-      <Navbar />
-
-      <Box style={classes.studlistSignin}>
-        <Box style={classes.studlistsignin1}>
-          <Typography style={classes.typosignin}>Sign In</Typography>
-          <Typography style={classes.typosigntoreview}>
-            Sign In to review and rate students
-          </Typography>
-
-          <Grid container spacing={1} style={classes.gridcontainer}>
-            <Grid item xs={4}>
-              <FacebookIcon style={classes.facebook} />
-            </Grid>
-            <Grid item xs={4}>
-              <TwitterIcon style={classes.twitter} />
-            </Grid>
-            <Grid item xs={4}>
-              <GoogleIcon style={classes.google} />
-            </Grid>
-          </Grid>
-        </Box>
-      </Box>
-
       <br />
       <br />
       <br />
 
       <Box style={classes.topstudentbox}>
+
         <Box>
           <Typography style={classes.header}>Top Students</Typography>
           <br />
           <Box sx={classes.topstudentcard}>
-            <MarcoTop />
-            <TopStudentCard />
-            <JustinTop />
-            <JoshuaTop />
+            {
+              topStudents.map((student, index) => {
+                return <TopStudentCard key={index} {...student} />
+              })
+            }
           </Box>
         </Box>
 

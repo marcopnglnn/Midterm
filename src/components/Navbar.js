@@ -6,11 +6,24 @@ import {
   Toolbar,
   Typography,
   InputBase,
+  Avatar,
+  Tooltip,
+  IconButton,
+  ListItemIcon,
+  MenuItem,
+  Menu,
+  Divider,
+  Popover,
+  Grid,
 } from "@mui/material";
 import { Link } from "react-router-dom";
 import SearchIcon from "@mui/icons-material/Search";
 import GridViewIcon from "@mui/icons-material/GridView";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import FacebookIcon from "@mui/icons-material/Facebook";
+import TwitterIcon from "@mui/icons-material/Twitter";
+import Logout from "./Logout";
+import Login from 'components/Login'
 
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
@@ -103,8 +116,154 @@ const classes = {
     height: 28,
   },
 };
+const ProfileDropDown = ({ user }) => {
+  const [anchorEl, setAnchorEl] = React.useState(null);
+  const open = Boolean(anchorEl);
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+  return (<>
+    <Box sx={{ display: 'flex', alignItems: 'center', textAlign: 'center' }}>
+      <Tooltip title="Account settings">
+        <IconButton onClick={handleClick} size="small" sx={{ ml: 2 }}>
+          <Avatar alt={user.name} src={user.image} />
+          {/* <Avatar alt={user.name} src={user.image} sx={{ width: 32, height: 32 }}></Avatar> */}
+        </IconButton>
+      </Tooltip>
+    </Box>
+    <Menu
+      anchorEl={anchorEl}
+      open={open}
+      onClose={handleClose}
+      onClick={handleClose}
+      PaperProps={{
+        elevation: 0,
+        sx: {
+          overflow: 'visible',
+          filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.32))',
+          mt: 1.5,
+          '& .MuiAvatar-root': {
+            width: 32,
+            height: 32,
+            ml: -0.5,
+            mr: 1,
+          },
+          '&:before': {
+            content: '""',
+            display: 'block',
+            position: 'absolute',
+            top: 0,
+            right: 14,
+            width: 10,
+            height: 10,
+            bgcolor: 'background.paper',
+            transform: 'translateY(-50%) rotate(45deg)',
+            zIndex: 0,
+          },
+        },
+      }}
+      transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+      anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+    >
+      <MenuItem>
+        <Typography>{user.name}</Typography>
+      </MenuItem>
+      <MenuItem>
+        <Typography>{user.email}</Typography>
+      </MenuItem>
+      <Divider />
+      <Logout />
+    </Menu>
+  </>
+  )
+}
 
-export default function SearchAppBar() {
+const SignInPopover = () => {
+  const _classes = {
+    studlistsignin1: {
+      textAlign: "center",
+      marginTop: 20,
+      paddingRight: 30,
+      paddingLeft: 30,
+    },
+    typosignin: {
+      color: "#D1D4C9",
+      fontSize: 18,
+    },
+    typosigntoreview: {
+      color: "#B6B6B5",
+      fontSize: 14,
+      marginTop: 8,
+    },
+    gridcontainer: {
+      marginTop: 15,
+      width: 140,
+      margin: "auto",
+      cursor: "pointer",
+    },
+    facebook: {
+      width: 40,
+      height: 40,
+      color: "#4267B2",
+    },
+    twitter: {
+      width: 40,
+      height: 40,
+      color: "#00ACEE",
+    },
+  }
+  const [anchorEl, setAnchorEl] = React.useState(null);
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const open = Boolean(anchorEl);
+  const id = open ? 'simple-popover' : undefined;
+  return (
+    <>
+      <AccountCircleIcon aria-describedby={id} style={classes.accounticon} onClick={handleClick} />
+      <Popover
+        id={id}
+        open={open}
+        anchorEl={anchorEl}
+        onClose={handleClose}
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'left',
+        }}
+      >
+        <Box style={_classes.studlistsignin1}>
+          <Typography style={_classes.typosignin}>Sign In</Typography>
+          <Typography style={_classes.typosigntoreview}>
+            Sign In to review and rate students
+          </Typography>
+
+          <Grid container spacing={1} style={classes.gridcontainer}>
+            <Grid item xs={4}>
+              <FacebookIcon style={_classes.facebook} />
+            </Grid>
+            <Grid item xs={4}>
+              <TwitterIcon style={_classes.twitter} />
+            </Grid>
+            <Grid item xs={4}>
+              <Login />
+            </Grid>
+          </Grid>
+        </Box>
+      </Popover>
+    </>
+  )
+}
+
+export default function SearchAppBar(props) {
+  const { user } = props
   return (
     <Box sx={classes.box}>
       <AppBar position="static" style={appBar}>
@@ -130,14 +289,15 @@ export default function SearchAppBar() {
               <Link style={listsNav} to="/">
                 Student List
               </Link>
-              <Link style={listsNav} to="/studeval">
-                Student Evaluation
-              </Link>
+
+              <Typography style={listsNav}> Student Evaluation</Typography>
               <Typography style={listsNav}>Blog</Typography>
             </Box>
           </Box>
+          {
+            user ? <ProfileDropDown user={user} /> : <SignInPopover />
+          }
 
-          <AccountCircleIcon style={classes.accounticon} />
 
           <Search>
             <SearchIconWrapper>
